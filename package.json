@@ -1,0 +1,21 @@
+{
+  "name": "hotellier",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w apps/server",
+    "seed": "npm run seed -w apps/server",
+    "build:server": "npm run build -w apps/server",
+    "build:shared": "npm run build -w  packages/shared",
+    "dev:shared": "npm run dev -w  packages/shared",
+    "generate": "npm run prisma:generate -w apps/server",
+    "migrate": "npm run prisma:migrate -w apps/server",
+    "reset": "npm run prisma:reset -w apps/server"
+  },
+  "license": "ISC",
+  "type": "commonjs"
+}
