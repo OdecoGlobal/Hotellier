@@ -1,7 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatError = formatError;
 exports.convertToPlainObject = convertToPlainObject;
+exports.generateSlugFromName = generateSlugFromName;
+const slugify_1 = __importDefault(require("slugify"));
 function formatError(error) {
     if (error.name === "ZodError") {
         // Handle Zod error
@@ -23,4 +28,7 @@ function formatError(error) {
 }
 function convertToPlainObject(value) {
     return JSON.parse(JSON.stringify(value));
+}
+function generateSlugFromName(name) {
+    return (0, slugify_1.default)(name, { lower: true, strict: true });
 }

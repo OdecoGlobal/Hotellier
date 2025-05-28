@@ -31,3 +31,23 @@ export const signUpFormSchema = z
     message: "password don't match",
     path: ["confirmPassword"],
   });
+
+export const insertHotelSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  // slug: z.string().min(3, "Slug must be at least 3 characters"),
+  description: z.string().min(3, "Description must be at least 3 characters"),
+  // ownerId: z
+  //   .string()
+  //   .uuid("User id must be valid")
+  //   // .min(1, "Owner Id is required"),
+  state: z.string().min(3, "State must be at least 3 characters"),
+  lga: z.string().min(3, "LGA must be at least 3 characters"),
+  longitude: z.number(),
+  latitude: z.number(),
+  address: z.string().min(3, "Address must be at least 3 characters"),
+  services: z.array(z.string()).min(1, "Hotel must have at least one service"),
+  locationBrief: z
+    .string()
+    .min(3, "Location Brief must be at least 3 characters"),
+  banner: z.string().nullable().optional(),
+});

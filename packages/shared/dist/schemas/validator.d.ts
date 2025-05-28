@@ -61,4 +61,38 @@ export declare const signUpFormSchema: z.ZodEffects<z.ZodObject<{
     userName: string;
     confirmPassword: string;
 }>;
+export declare const insertHotelSchema: z.ZodObject<{
+    name: z.ZodString;
+    description: z.ZodString;
+    state: z.ZodString;
+    lga: z.ZodString;
+    longitude: z.ZodNumber;
+    latitude: z.ZodNumber;
+    address: z.ZodString;
+    services: z.ZodArray<z.ZodString, "many">;
+    locationBrief: z.ZodString;
+    banner: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    description: string;
+    state: string;
+    lga: string;
+    longitude: number;
+    latitude: number;
+    address: string;
+    services: string[];
+    locationBrief: string;
+    banner?: string | null | undefined;
+}, {
+    name: string;
+    description: string;
+    state: string;
+    lga: string;
+    longitude: number;
+    latitude: number;
+    address: string;
+    services: string[];
+    locationBrief: string;
+    banner?: string | null | undefined;
+}>;
 //# sourceMappingURL=validator.d.ts.map

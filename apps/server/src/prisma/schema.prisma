@@ -9,18 +9,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userName      String    @default("NO_NAME")
-  email         String    @unique(map: "user_email_idx")
-  emailVerified DateTime? @db.Timestamp(6)
-  image         String?
-  password      String?
-  role          Role      @default(USER)
-  address       Json?     @db.Json
-  paymentMethod String?
-  createdAt     DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt     DateTime  @updatedAt
-  hotels        Hotel[]   @relation("OwnerHotels")
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userName          String    @default("NO_NAME")
+  email             String    @unique(map: "user_email_idx")
+  emailVerified     DateTime? @db.Timestamp(6)
+  image             String?
+  password          String?
+  passwordChangedAt DateTime?
+  role              Role      @default(USER)
+  address           Json?     @db.Json
+  paymentMethod     String?
+  createdAt         DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime  @updatedAt
+  hotels            Hotel[]   @relation("OwnerHotels")
   // bookings  Booking[]
   // reviews   Review[]
 }
@@ -43,10 +44,10 @@ model Hotel {
   latitude       Float
   longitude      Float
   address        String
-  owner          User           @relation("OwnerHotels", fields: [ownerId], references: [id])
-  roomCategories RoomCategory[]
   services       String[]       @default([])
   locationBrief  String
+  owner          User           @relation("OwnerHotels", fields: [ownerId], references: [id])
+  roomCategories RoomCategory[]
   // bookings    Booking[]
   // reviews     Review[]
   createdAt      DateTime       @default(now()) @db.Timestamp(6)

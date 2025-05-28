@@ -1,3 +1,5 @@
+import slugify from "slugify";
+
 export function formatError(error: any) {
   if (error.name === "ZodError") {
     // Handle Zod error
@@ -23,4 +25,8 @@ export function formatError(error: any) {
 
 export function convertToPlainObject<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
+}
+
+export function generateSlugFromName(name: string) {
+  return slugify(name, { lower: true, strict: true });
 }
