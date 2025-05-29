@@ -1,19 +1,26 @@
-import express from "express";
+import express from 'express';
 import {
   createHotel,
+  deleteHotel,
   getAllHotels,
   getHotelById,
   getHotelBySlug,
-} from "../controllers/hotel.controller";
-import { protect, restrictTo } from "../controllers/auth.controller";
+  updateHotel,
+} from '../controllers/hotel.controller';
+import { protect, restrictTo } from '../controllers/auth.controller';
 
 const router = express.Router();
 router
-  .route("/")
+  .route('/')
   .get(getAllHotels)
-  .post(protect, restrictTo("OWNER"), createHotel);
+  .post(protect, restrictTo('OWNER'), createHotel);
 
-router.get("/:hotelId", getHotelById);
-router.get("/slug/:slug", getHotelBySlug);
+router
+  .route('/:hotelId')
+  .get(getHotelById)
+  .patch(protect, restrictTo('OWNER'), updateHotel)
+  .delete(protect, restrictTo('OWNER'), deleteHotel);
+
+router.get('/slug/:slug', getHotelBySlug);
 
 export default router;

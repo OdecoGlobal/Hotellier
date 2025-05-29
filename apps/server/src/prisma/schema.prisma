@@ -48,6 +48,7 @@ model Hotel {
   locationBrief  String
   owner          User           @relation("OwnerHotels", fields: [ownerId], references: [id])
   roomCategories RoomCategory[]
+  room           Room[]
   // bookings    Booking[]
   // reviews     Review[]
   createdAt      DateTime       @default(now()) @db.Timestamp(6)
@@ -64,6 +65,8 @@ model RoomCategory {
 
 model Room {
   id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  hotelId    String       @db.Uuid
+  hotel      Hotel        @relation(fields: [hotelId], references: [id])
   categoryId String       @db.Uuid
   roomNumber String
   price      Float
@@ -73,14 +76,6 @@ model Room {
 }
 
 /**
- * // datasource and generator
- * generator client {
- * provider = "prisma-client-js"
- * }
- * datasource db {
- * provider = "postgresql" // or "mongodb" if you prefer
- * url      = env("DATABASE_URL")
- * }
  * model User {
  * id        String   @id @default(uuid())
  * email     String   @unique

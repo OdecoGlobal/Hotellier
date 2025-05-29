@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 export declare const signInFormSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
@@ -94,5 +94,43 @@ export declare const insertHotelSchema: z.ZodObject<{
     services: string[];
     locationBrief: string;
     banner?: string | null | undefined;
+}>;
+export declare const updateHotelSchema: z.ZodObject<{
+    name: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodString>;
+    state: z.ZodOptional<z.ZodString>;
+    lga: z.ZodOptional<z.ZodString>;
+    longitude: z.ZodOptional<z.ZodNumber>;
+    latitude: z.ZodOptional<z.ZodNumber>;
+    address: z.ZodOptional<z.ZodString>;
+    services: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    locationBrief: z.ZodOptional<z.ZodString>;
+    banner: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>;
+} & {
+    slug: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    name?: string | undefined;
+    description?: string | undefined;
+    state?: string | undefined;
+    lga?: string | undefined;
+    longitude?: number | undefined;
+    latitude?: number | undefined;
+    address?: string | undefined;
+    services?: string[] | undefined;
+    locationBrief?: string | undefined;
+    banner?: string | null | undefined;
+    slug?: string | undefined;
+}, {
+    name?: string | undefined;
+    description?: string | undefined;
+    state?: string | undefined;
+    lga?: string | undefined;
+    longitude?: number | undefined;
+    latitude?: number | undefined;
+    address?: string | undefined;
+    services?: string[] | undefined;
+    locationBrief?: string | undefined;
+    banner?: string | null | undefined;
+    slug?: string | undefined;
 }>;
 //# sourceMappingURL=validator.d.ts.map
