@@ -55,3 +55,9 @@ export const insertHotelSchema = z.object({
 export const updateHotelSchema = insertHotelSchema.partial().extend({
   slug: z.string().min(3, 'Slug must be at least 3 characters').optional(),
 });
+export const insertRoomSchema = z.object({
+  name: z.string().min(3, 'Name must be at least 3 characters'),
+  category: z.string().min(3, 'Category must be at least 3 characters'),
+  images: z.string().array(),
+  roomNumber: z.number().min(0, ''),
+});
