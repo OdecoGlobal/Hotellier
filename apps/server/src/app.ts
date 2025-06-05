@@ -5,19 +5,25 @@ import compression from 'compression';
 import cors from 'cors';
 import userRouter from './routes/user.route';
 import hotelRouter from './routes/hotel.route';
+import authRouter from './routes/auth.route';
 import helmet from 'helmet';
 
 // @ts-ignore
-import xss from 'xss-clean';
+// import xss from 'xss-clean';
 import rateLimit from 'express-rate-limit';
 
 import { errorHandler } from './controllers/error.controller';
 
 const app = express();
 
-app.enable('trust proxy');
+// app.enable('trust proxy');
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.options(/.*/, cors());
 
 app.use(express.static(`${__dirname}/public`));
@@ -38,10 +44,11 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 app.use(cookieParser());
-app.use(xss());
+// app.use(xss());
 
 app.use(compression());
 
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/hotels', hotelRouter);
 

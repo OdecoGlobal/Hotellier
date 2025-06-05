@@ -1,3 +1,4 @@
+/*
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db/prisma";
 
@@ -38,3 +39,4 @@ export async function getAllHotelsActions({
     totalPages: Math.ceil(dataCount / limit),
   };
 }
+*/

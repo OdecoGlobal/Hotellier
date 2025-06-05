@@ -1,15 +1,79 @@
 import { NextFunction, Request, Response } from 'express';
-import { getAllHotelsActions } from '../actions/hotel.actions';
+// import { getAllHotelsActions } from '../actions/hotel.actions';
 import catchAsync from '../utils/catchAsync';
 import { prisma } from '../db/prisma';
 import {
+  addRoomSchema,
   generateSlugFromName,
-  insertHotelSchema,
-  updateHotelSchema,
+  hotelBasicInfoSchema,
+  hotelPolicySchema,
 } from '@hotellier/shared';
 import AppError from '../utils/appError';
 import { AuthenticatedRequest } from '../types/express/custom';
 
+type StepKey =
+  | 'step1_basic_info'
+  | 'step2_policies'
+  | 'step3_rooms'
+  | 'step4_rates'
+  | ' step5_amenities'
+  | 'step6_contract';
+
+async function updateHotelProgress(
+  hotelId: string,
+  stepKey: StepKey,
+  isCompleted: boolean
+) {
+  const hotel = await prisma.hotel.findUnique({ where: { id: hotelId } });
+
+  if (!hotel) throw new Error('Hotel not found');
+
+  const completionSteps = hotel.completionSteps as Record<string, boolean>;
+
+  completionSteps[stepKey] = isCompleted;
+
+  const completedCount = Object.values(completionSteps).filter(Boolean).length;
+  const currentStep = calculateCurrentStep(completionSteps);
+  const isFullyCompleted = completedCount === 6;
+
+  let status = hotel.status;
+  if (isFullyCompleted && status === 'DRAFT') {
+    status = 'PENDING_REVIEW';
+  } else if (completedCount > 0 && status === 'DRAFT') {
+    status = 'IN_PROGRESS';
+  }
+
+  await prisma.hotel.update({
+    where: { id: hotelId },
+    data: {
+      completionSteps,
+      currentStep,
+      isFullyCompleted,
+      status,
+    },
+  });
+}
+
+function calculateCurrentStep(
+  completionSteps: Record<string, boolean>
+): number {
+  const steps = [
+    'step1_basic_info',
+    'step2_policies',
+    'step3_rooms',
+    'step4_rates',
+    'step5_amenities',
+    'step6_contract',
+  ];
+
+  for (let i = 0; i < steps.length; i++) {
+    if (!completionSteps[steps[i]]) {
+      return i + 1;
+    }
+  }
+  return 6; // All completed
+}
+/*
 export const getAllHotels = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await getAllHotelsActions({
@@ -23,19 +87,7 @@ export const getAllHotels = catchAsync(
       data: result,
     });
   }
-);
-
-export const getHotelBySlug = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { slug } = req.params;
-    const data = await prisma.hotel.findFirst({
-      where: { slug: slug },
-    });
-    res.status(200).json({
-      data,
-    });
-  }
-);
+);*/
 
 export const getHotelById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -49,30 +101,155 @@ export const getHotelById = catchAsync(
   }
 );
 
-export const createHotel = catchAsync(
+export const createHotel = catchAsync(async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+
+  const hotel = await prisma.hotel.create({
+    data: {
+      ownerId: authReq.user.id,
+      status: 'DRAFT',
+      completionSteps: {
+        step1_basic_info: false,
+        step2_policies: false,
+        step3_rooms: false,
+        step4_rates: false,
+        step5_amenities: false,
+        step6_contract: false,
+      },
+      currentStep: 1,
+      totalSteps: 6,
+    },
+  });
+
+  res.status(201).json({
+    status: 'success',
+    data: hotel,
+  });
+});
+
+export const updateHotelBasicInfo = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const data = insertHotelSchema.parse(req.body);
+    const data = hotelBasicInfoSchema.parse(req.body);
 
     const slug = generateSlugFromName(data.name);
-    const authReq = req as AuthenticatedRequest;
+    const { hotelId } = req.params;
 
-    const hotel = await prisma.hotel.create({
-      data: {
+    const basicInfo = await prisma.hotelBasicInfo.upsert({
+      where: { hotelId },
+      update: {
         ...data,
-        slug,
-        ownerId: authReq.user.id,
+        slug: slug,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+      create: {
+        ...data,
+        hotelId,
+        slug: slug,
+        isCompleted: true,
+        completedAt: new Date(),
       },
     });
 
-    res.status(201).json({
+    await updateHotelProgress(
+      hotelId,
+      'step1_basic_info',
+      basicInfo.isCompleted
+    );
+
+    res.status(200).json({
       status: 'success',
-      data: {
-        hotel,
-      },
+      data: basicInfo,
     });
   }
 );
 
+export const updatePolicies = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { hotelId } = req.params;
+    const policiesData = hotelPolicySchema.parse(req.body);
+    const policies = await prisma.hotelPolicy.upsert({
+      where: { hotelId },
+      update: {
+        ...policiesData,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+      create: {
+        hotelId,
+        ...policiesData,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+
+    await updateHotelProgress(hotelId, 'step2_policies', policies.isCompleted);
+
+    res.status(200).json({
+      status: 'success',
+      data: policies,
+    });
+  }
+);
+
+export const deleteHotel = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authReq = req as AuthenticatedRequest;
+
+    const { hotelId } = req.params;
+
+    const hotelExist = await prisma.hotel.findUnique({
+      where: { id: hotelId },
+    });
+
+    if (!hotelExist) return next(new AppError('Hotel not found', 400));
+
+    if (
+      hotelExist.ownerId !== authReq.user.id &&
+      authReq.user.role !== 'ADMIN'
+    ) {
+      return next(
+        new AppError('You do not have permission to update this hotel', 403)
+      );
+    }
+
+    await prisma.hotel.delete({
+      where: { id: hotelId },
+    });
+
+    res.status(204).json({
+      status: 'Success',
+      data: null,
+    });
+  }
+);
+
+export const addRoom = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { hotelId } = req.params;
+    const roomData = addRoomSchema.parse(req.body);
+
+    const room = await prisma.room.create({
+      data: {
+        hotelId,
+        ...roomData,
+        isCompleted: true,
+      },
+    });
+
+    const completedRooms = await prisma.room.count({
+      where: { hotelId, isCompleted: true },
+    });
+
+    await updateHotelProgress(hotelId, 'step3_rooms', completedRooms > 0);
+
+    res.status(201).json({
+      status: 'success',
+      data: room,
+    });
+  }
+);
+/*
 export const updateHotel = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { hotelId } = req.params;
@@ -111,34 +288,15 @@ export const updateHotel = catchAsync(
   }
 );
 
-export const deleteHotel = catchAsync(
+export const getHotelBySlug = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const authReq = req as AuthenticatedRequest;
-
-    const { hotelId } = req.params;
-
-    const hotelExist = await prisma.hotel.findUnique({
-      where: { id: hotelId },
+    const { slug } = req.params;
+    const data = await prisma.hotel.findFirst({
+      where: { slug: slug },
     });
-
-    if (!hotelExist) return next(new AppError('Hotel not found', 400));
-
-    if (
-      hotelExist.ownerId !== authReq.user.id &&
-      authReq.user.role !== 'ADMIN'
-    ) {
-      return next(
-        new AppError('You do not have permission to update this hotel', 403)
-      );
-    }
-
-    await prisma.hotel.delete({
-      where: { id: hotelId },
-    });
-
-    res.status(204).json({
-      status: 'Success',
-      data: null,
+    res.status(200).json({
+      data,
     });
   }
 );
+*/

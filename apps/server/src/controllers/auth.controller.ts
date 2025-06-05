@@ -83,6 +83,24 @@ export const signUp = catchAsync(
   }
 );
 
+export const signUpHotelOwners = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const validatedData = signUpFormSchema.parse(req.body);
+    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+
+    const newUser = await prisma.user.create({
+      data: {
+        userName: validatedData.userName,
+        email: validatedData.email,
+        password: hashedPassword,
+        role: 'OWNER',
+      },
+    });
+    const { password, ...userWithoutPassword } = newUser;
+    createSendToken(userWithoutPassword, 201, res);
+  }
+);
+
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const validatedData = loginSchema.parse(req.body);
@@ -184,3 +202,70 @@ export const restrictTo = (...roles: Role[]) => {
     next();
   };
 };
+
+export const validateHotelOwnerShip = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authReq = req as AuthenticatedRequest;
+    const { hotelId } = req.params;
+
+    const userId = authReq.user.id;
+    const hotel = await prisma.hotel.findFirst({
+      where: { id: hotelId, ownerId: userId },
+    });
+
+    if (!hotel)
+      return next(new AppError('Hotel not found or access denied', 404));
+    req.hotel = hotel;
+    next();
+  }
+);
+
+export const verifiedToken = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    let token;
+
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt;
+    }
+
+    if (!token) {
+      return next(
+        new AppError('You are not logged in!, Please login in to access', 401)
+      );
+    }
+
+    const decoded = await verifyToken(token, process.env.JWT_SECRET! as string);
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: decoded.id },
+    });
+
+    if (!currentUser) return next(new AppError('User no longer exists.', 401));
+
+    if (!decoded.iat) {
+      throw new Error('Token missing "iat" claim');
+    }
+
+    if (changedPasswordAfter(currentUser, decoded.iat)) {
+      return next(
+        new AppError(
+          'User recently changed password! Please log in again ',
+          401
+        )
+      );
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        token,
+        user: currentUser,
+      },
+    });
+  }
+);

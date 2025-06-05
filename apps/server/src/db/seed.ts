@@ -1,3 +1,4 @@
+/*
 import { PrismaClient } from "@prisma/client";
 import sampleData from "./sample-data";
 
@@ -78,3 +79,4 @@ main().catch((e) => {
   console.error("Seeding error:", e);
   process.exit(1);
 });
+*/

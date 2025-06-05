@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "dev:server": "npm run dev -w apps/server",
+    "dev:client": "npm run dev -w apps/client",
+    "start:server": "npm start dev -w apps/server",
     "seed": "npm run seed -w apps/server",
     "build:server": "npm run build -w apps/server",
     "build:shared": "npm run build -w  packages/shared",
@@ -17,5 +19,11 @@
     "reset": "npm run prisma:reset -w apps/server"
   },
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "prisma": "^6.9.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0"
+  }
 }
