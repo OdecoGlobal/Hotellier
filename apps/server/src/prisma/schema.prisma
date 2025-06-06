@@ -52,6 +52,7 @@ model Hotel {
   rooms     Room[]
   rates     HotelRate[]
   amenities HotelAmenity[]
+  images    HotelImages[]
 
   // bookings    Booking[]
   // reviews     Review[]
@@ -64,19 +65,20 @@ model HotelBasicInfo {
   hotelId String @unique @db.Uuid
   hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 
-  name   String  @unique(map: "hotel_name_idx")
-  slug   String  @unique(map: "hotel_slug_idx")
-  rating Decimal @default(0) @db.Decimal(3, 2)
+  name             String    @unique(map: "hotel_name_idx")
+  slug             String    @unique(map: "hotel_slug_idx")
+  rating           Decimal   @default(0) @db.Decimal(3, 2)
+  hotelType        HotelType
+  roomUnitTotal    Int       @default(0)
+  acceptedCurrency Currency  @default(NGN)
 
-  address   String
-  city      String
-  state     String
-  country   String
-  zipCode   String
-  latitude  Float?
-  longitude Float?
-
-  images String[] @default([])
+  address String
+  city    String
+  state   String
+  country String
+  zipCode String
+  lat     Float?
+  lng     Float?
 
   isCompleted Boolean   @default(false)
   completedAt DateTime?
@@ -133,8 +135,9 @@ model Room {
   maxOccupancy      Int
   bedConfigurations String
 
-  amenities RoomAmenity[]
-  images    String[]      @default([])
+  amenities  RoomAmenity[]
+  images     String[]
+  roomImages RoomImages[]
 
   totalRooms  Int     @default(1)
   isAvailable Boolean @default(true)
@@ -216,6 +219,74 @@ model RoomAmenity {
   @@map("room_amenities")
 }
 
+model HotelImages {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  hotelId String @db.Uuid
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  imageType ImageType
+  imageUrl  String
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  @@map("hotel_images")
+}
+
+model RoomImages {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId String @db.Uuid
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  imageUrl String
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  @@map("room_images")
+}
+
+model Country {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String  @unique(map: "country_name_idx")
+  iso2         String  @unique(map: "country_iso2_idx")
+  iso3         String
+  phoneCode    String?
+  capital      String?
+  currency     String?
+  currencyName String?
+  region       String?
+  nationality  String?
+
+  states State[]
+}
+
+model State {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  stateId     Int     @unique(map: "state_id_idx")
+  stateCode   String?
+  countryCode String?
+  countryName String?
+  countryId   String  @db.Uuid
+  country     Country @relation(fields: [countryId], references: [id])
+
+  cities City[]
+}
+
+model City {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cityId      Int     @unique(map: "city_id_idx")
+  name        String
+  stateId     String  @db.Uuid
+  stateCode   String?
+  stateName   String?
+  stateUqId   Int
+  countryName String?
+
+  state State @relation(fields: [stateId], references: [id])
+}
+
 // ENUMS
 enum HotelStatus {
   DRAFT
@@ -225,6 +296,27 @@ enum HotelStatus {
   REJECTED
   ACTIVE
   INACTIVE
+}
+
+enum Currency {
+  NGN
+  USD
+  EUR
+  GBP
+}
+
+enum HotelType {
+  HOTEL
+  MOTEL
+  GUESTHOUSE
+  INN
+  APARTMENT
+}
+
+enum ImageType {
+  COVER
+  EXTERIOR
+  INTERIOR
 }
 
 enum HotelCategory {

@@ -14,6 +14,7 @@ import { signUpUser } from '@/lib/actions/auth.action';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signUpFormSchema } from '@hotellier/shared';
 import { Loader } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -44,6 +45,7 @@ const SignUpForm = () => {
         description: res.message,
         variant: 'default',
       });
+      redirect('/');
     }
     console.log(values);
   };

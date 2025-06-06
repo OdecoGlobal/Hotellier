@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const auth_controller_1 = require("../controllers/auth.controller");
 const router = express_1.default.Router();
 router.post('/signup', auth_controller_1.signUp);
+router.get('/verify', auth_controller_1.verifiedToken);
 router.post('/signup-owner', auth_controller_1.signUpHotelOwners);
 router.post('/login', auth_controller_1.login);
 router.post('/logout', auth_controller_1.logout);

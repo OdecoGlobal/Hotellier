@@ -6,6 +6,7 @@ import cors from 'cors';
 import userRouter from './routes/user.route';
 import hotelRouter from './routes/hotel.route';
 import authRouter from './routes/auth.route';
+import locationRouter from './routes/location.route';
 import helmet from 'helmet';
 
 // @ts-ignore
@@ -34,7 +35,7 @@ app.use(helmet());
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 const limiter = rateLimit({
-  limit: 100,
+  limit: 10000,
   windowMs: 60 * 60 * 1000,
   message: 'Too many request!!. Try again in an hour',
 });
@@ -51,6 +52,7 @@ app.use(compression());
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/hotels', hotelRouter);
+app.use('/api/v1/locations', locationRouter);
 
 app.use(errorHandler);
 

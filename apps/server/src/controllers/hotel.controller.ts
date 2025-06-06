@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-// import { getAllHotelsActions } from '../actions/hotel.actions';
 import catchAsync from '../utils/catchAsync';
 import { prisma } from '../db/prisma';
 import {
@@ -14,12 +13,12 @@ import { AuthenticatedRequest } from '../types/express/custom';
 type StepKey =
   | 'step1_basic_info'
   | 'step2_policies'
-  | 'step3_rooms'
-  | 'step4_rates'
-  | ' step5_amenities'
-  | 'step6_contract';
+  | 'step3_hotel_images'
+  | 'step4_rooms'
+  | 'step5_rates'
+  | ' step6_amenities';
 
-async function updateHotelProgress(
+export async function updateHotelProgress(
   hotelId: string,
   stepKey: StepKey,
   isCompleted: boolean
@@ -34,7 +33,7 @@ async function updateHotelProgress(
 
   const completedCount = Object.values(completionSteps).filter(Boolean).length;
   const currentStep = calculateCurrentStep(completionSteps);
-  const isFullyCompleted = completedCount === 6;
+  const isFullyCompleted = completedCount === 8;
 
   let status = hotel.status;
   if (isFullyCompleted && status === 'DRAFT') {
@@ -60,10 +59,11 @@ function calculateCurrentStep(
   const steps = [
     'step1_basic_info',
     'step2_policies',
-    'step3_rooms',
-    'step4_rates',
-    'step5_amenities',
-    'step6_contract',
+    'step3_hotel_images',
+    'step4_rooms',
+    'step5_rates',
+    'step6_amenities',
+    // 'step7_contract',
   ];
 
   for (let i = 0; i < steps.length; i++) {
@@ -71,23 +71,8 @@ function calculateCurrentStep(
       return i + 1;
     }
   }
-  return 6; // All completed
+  return 6;
 }
-/*
-export const getAllHotels = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const result = await getAllHotelsActions({
-      query: req.query.query as string,
-      limit: req.query.limit ? Number(req.query.limit) : 10,
-      page: req.query.page ? Number(req.query.page) : 1,
-      rating: req.query.rating as string,
-      sort: req.query.sort as string,
-    });
-    res.status(200).json({
-      data: result,
-    });
-  }
-);*/
 
 export const getHotelById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -104,48 +89,62 @@ export const getHotelById = catchAsync(
 export const createHotel = catchAsync(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
 
-  const hotel = await prisma.hotel.create({
-    data: {
-      ownerId: authReq.user.id,
-      status: 'DRAFT',
-      completionSteps: {
-        step1_basic_info: false,
-        step2_policies: false,
-        step3_rooms: false,
-        step4_rates: false,
-        step5_amenities: false,
-        step6_contract: false,
+  const basicInfoData = hotelBasicInfoSchema.parse(req.body);
+  const slug = generateSlugFromName(basicInfoData.name);
+
+  const result = await prisma.$transaction(async tx => {
+    const hotel = await tx.hotel.create({
+      data: {
+        ownerId: authReq.user.id,
+        status: 'IN_PROGRESS',
+        completionSteps: {
+          step1_basic_info: true,
+          step2_policies: false,
+          step3_hotel_images: false,
+          step4_rooms: false,
+          step5_rates: false,
+          step6_amenities: false,
+        },
+        currentStep: 2,
+        totalSteps: 6,
       },
-      currentStep: 1,
-      totalSteps: 6,
-    },
+    });
+
+    const basicInfo = await tx.hotelBasicInfo.create({
+      data: {
+        ...basicInfoData,
+        hotelId: hotel.id,
+        slug: slug,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+
+    return { hotel, basicInfo };
   });
 
   res.status(201).json({
     status: 'success',
-    data: hotel,
+    data: {
+      hotel: result.hotel,
+      basicInfoData: result.basicInfo,
+    },
   });
 });
 
 export const updateHotelBasicInfo = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const data = hotelBasicInfoSchema.parse(req.body);
+    const data = hotelBasicInfoSchema.partial().parse(req.body);
 
-    const slug = generateSlugFromName(data.name);
+    if (data.name) {
+      const slug = generateSlugFromName(data.name);
+    }
     const { hotelId } = req.params;
 
-    const basicInfo = await prisma.hotelBasicInfo.upsert({
+    const basicInfo = await prisma.hotelBasicInfo.update({
       where: { hotelId },
-      update: {
+      data: {
         ...data,
-        slug: slug,
-        isCompleted: true,
-        completedAt: new Date(),
-      },
-      create: {
-        ...data,
-        hotelId,
-        slug: slug,
         isCompleted: true,
         completedAt: new Date(),
       },
@@ -191,7 +190,58 @@ export const updatePolicies = catchAsync(
     });
   }
 );
+export const addHotelImages = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { hotelId } = req.params;
+    const { hotelImages, exterior, interior } = req.body;
 
+    const imageData = [];
+
+    if (hotelImages && hotelImages.length > 0) {
+      imageData.push(
+        ...hotelImages.map((url: string) => ({
+          hotelId,
+          imageUrl: url,
+          imageType: 'COVER' as const,
+        }))
+      );
+    }
+
+    if (exterior && exterior.length > 0) {
+      imageData.push(
+        ...exterior.map((url: string) => ({
+          hotelId,
+          imageUrl: url,
+          imageType: 'EXTERIOR' as const,
+        }))
+      );
+    }
+
+    if (interior && interior.length > 0) {
+      imageData.push(
+        ...interior.map((url: string) => ({
+          hotelId,
+          imageUrl: url,
+          imageType: 'INTERIOR' as const,
+        }))
+      );
+    }
+
+    const createdImages = await prisma.hotelImages.createMany({
+      data: imageData,
+    });
+    await updateHotelProgress(
+      hotelId,
+      'step3_hotel_images',
+      imageData.length > 0
+    );
+
+    res.status(201).json({
+      status: 'success',
+      data: createdImages,
+    });
+  }
+);
 export const deleteHotel = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const authReq = req as AuthenticatedRequest;
@@ -241,7 +291,7 @@ export const addRoom = catchAsync(
       where: { hotelId, isCompleted: true },
     });
 
-    await updateHotelProgress(hotelId, 'step3_rooms', completedRooms > 0);
+    await updateHotelProgress(hotelId, 'step4_rooms', completedRooms > 0);
 
     res.status(201).json({
       status: 'success',
@@ -249,6 +299,44 @@ export const addRoom = catchAsync(
     });
   }
 );
+
+export const addRoomImages = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { roomId } = req.params;
+    const { roomImages } = req.body;
+
+    const roomExists = await prisma.room.findUnique({
+      where: { id: roomId },
+    });
+
+    if (!roomExists) {
+      return next(new AppError('Room not found', 404));
+    }
+
+    const imageData = [];
+
+    if (roomImages && roomImages.length > 0) {
+      imageData.push(
+        ...roomImages.map((url: string) => ({
+          roomId,
+          imageUrl: url,
+        }))
+      );
+    }
+
+    const createdRoomImages = await prisma.roomImages.createMany({
+      data: imageData,
+    });
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        roomImages: createdRoomImages,
+      },
+    });
+  }
+);
+
 /*
 export const updateHotel = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -300,3 +388,19 @@ export const getHotelBySlug = catchAsync(
   }
 );
 */
+
+/*
+export const getAllHotels = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await getAllHotelsActions({
+      query: req.query.query as string,
+      limit: req.query.limit ? Number(req.query.limit) : 10,
+      page: req.query.page ? Number(req.query.page) : 1,
+      rating: req.query.rating as string,
+      sort: req.query.sort as string,
+    });
+    res.status(200).json({
+      data: result,
+    });
+  }
+);*/

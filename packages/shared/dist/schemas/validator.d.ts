@@ -75,9 +75,11 @@ export declare const hotelBasicInfoSchema: z.ZodObject<{
     state: z.ZodString;
     country: z.ZodString;
     zipCode: z.ZodString;
-    longitude: z.ZodNumber;
-    latitude: z.ZodNumber;
-    images: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    lng: z.ZodNumber;
+    lat: z.ZodNumber;
+    hotelType: z.ZodEnum<["HOTEL", "MOTEL", "GUESTHOUSE", "INN", "APARTMENT"]>;
+    roomUnitTotal: z.ZodNumber;
+    acceptedCurrency: z.ZodEnum<["NGN", "USD", "EUR", "GBP"]>;
 }, "strip", z.ZodTypeAny, {
     name: string;
     address: string;
@@ -85,9 +87,11 @@ export declare const hotelBasicInfoSchema: z.ZodObject<{
     state: string;
     country: string;
     zipCode: string;
-    longitude: number;
-    latitude: number;
-    images?: string[] | undefined;
+    lng: number;
+    lat: number;
+    hotelType: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT";
+    roomUnitTotal: number;
+    acceptedCurrency: "NGN" | "USD" | "EUR" | "GBP";
 }, {
     name: string;
     address: string;
@@ -95,9 +99,11 @@ export declare const hotelBasicInfoSchema: z.ZodObject<{
     state: string;
     country: string;
     zipCode: string;
-    longitude: number;
-    latitude: number;
-    images?: string[] | undefined;
+    lng: number;
+    lat: number;
+    hotelType: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT";
+    roomUnitTotal: number;
+    acceptedCurrency: "NGN" | "USD" | "EUR" | "GBP";
 }>;
 export declare const hotelPolicySchema: z.ZodObject<{
     checkInTime: z.ZodString;
@@ -155,7 +161,6 @@ export declare const addRoomSchema: z.ZodObject<{
     size: z.ZodOptional<z.ZodNumber>;
     maxOccupancy: z.ZodNumber;
     bedConfigurations: z.ZodString;
-    images: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     totalRooms: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
     isAvailable: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
     basePrice: z.ZodNumber;
@@ -169,7 +174,6 @@ export declare const addRoomSchema: z.ZodObject<{
     isAvailable: boolean;
     basePrice: number;
     currency: string;
-    images?: string[] | undefined;
     description?: string | undefined;
     size?: number | undefined;
 }, {
@@ -178,7 +182,6 @@ export declare const addRoomSchema: z.ZodObject<{
     maxOccupancy: number;
     bedConfigurations: string;
     basePrice: number;
-    images?: string[] | undefined;
     description?: string | undefined;
     size?: number | undefined;
     totalRooms?: number | undefined;
@@ -200,10 +203,10 @@ export declare const insertHotelSchema: z.ZodObject<{
     name: string;
     address: string;
     state: string;
-    longitude: number;
-    latitude: number;
     description: string;
     lga: string;
+    longitude: number;
+    latitude: number;
     services: string[];
     locationBrief: string;
     banner?: string | null | undefined;
@@ -211,10 +214,10 @@ export declare const insertHotelSchema: z.ZodObject<{
     name: string;
     address: string;
     state: string;
-    longitude: number;
-    latitude: number;
     description: string;
     lga: string;
+    longitude: number;
+    latitude: number;
     services: string[];
     locationBrief: string;
     banner?: string | null | undefined;
@@ -236,10 +239,10 @@ export declare const updateHotelSchema: z.ZodObject<{
     name?: string | undefined;
     address?: string | undefined;
     state?: string | undefined;
-    longitude?: number | undefined;
-    latitude?: number | undefined;
     description?: string | undefined;
     lga?: string | undefined;
+    longitude?: number | undefined;
+    latitude?: number | undefined;
     services?: string[] | undefined;
     locationBrief?: string | undefined;
     banner?: string | null | undefined;
@@ -248,10 +251,10 @@ export declare const updateHotelSchema: z.ZodObject<{
     name?: string | undefined;
     address?: string | undefined;
     state?: string | undefined;
-    longitude?: number | undefined;
-    latitude?: number | undefined;
     description?: string | undefined;
     lga?: string | undefined;
+    longitude?: number | undefined;
+    latitude?: number | undefined;
     services?: string[] | undefined;
     locationBrief?: string | undefined;
     banner?: string | null | undefined;
@@ -294,13 +297,85 @@ export declare const insertRoomSchema: z.ZodObject<{
     roomNumber: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
     name: string;
-    images: string[];
     category: string;
+    images: string[];
     roomNumber: number;
 }, {
     name: string;
-    images: string[];
     category: string;
+    images: string[];
     roomNumber: number;
+}>;
+export declare const insertCountrySchema: z.ZodObject<{
+    name: z.ZodString;
+    iso2: z.ZodString;
+    iso3: z.ZodString;
+    phoneCode: z.ZodOptional<z.ZodString>;
+    capital: z.ZodOptional<z.ZodString>;
+    currency: z.ZodOptional<z.ZodString>;
+    currency_name: z.ZodOptional<z.ZodString>;
+    region: z.ZodOptional<z.ZodString>;
+    nationality: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    iso2: string;
+    iso3: string;
+    currency?: string | undefined;
+    phoneCode?: string | undefined;
+    capital?: string | undefined;
+    currency_name?: string | undefined;
+    region?: string | undefined;
+    nationality?: string | undefined;
+}, {
+    name: string;
+    iso2: string;
+    iso3: string;
+    currency?: string | undefined;
+    phoneCode?: string | undefined;
+    capital?: string | undefined;
+    currency_name?: string | undefined;
+    region?: string | undefined;
+    nationality?: string | undefined;
+}>;
+export declare const insertStateSchema: z.ZodObject<{
+    name: z.ZodString;
+    country_code: z.ZodString;
+    country_name: z.ZodString;
+    id: z.ZodString;
+    state_code: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    name: string;
+    country_code: string;
+    country_name: string;
+    state_code?: string | undefined;
+}, {
+    id: string;
+    name: string;
+    country_code: string;
+    country_name: string;
+    state_code?: string | undefined;
+}>;
+export declare const insertCitySchema: z.ZodObject<{
+    name: z.ZodString;
+    id: z.ZodString;
+    state_code: z.ZodOptional<z.ZodString>;
+    state_name: z.ZodOptional<z.ZodString>;
+    state_id: z.ZodString;
+    country_name: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    id: string;
+    name: string;
+    state_id: string;
+    country_name?: string | undefined;
+    state_code?: string | undefined;
+    state_name?: string | undefined;
+}, {
+    id: string;
+    name: string;
+    state_id: string;
+    country_name?: string | undefined;
+    state_code?: string | undefined;
+    state_name?: string | undefined;
 }>;
 //# sourceMappingURL=validator.d.ts.map

@@ -1,10 +1,13 @@
 import express from 'express';
 import {
+  addHotelImages,
+  addRoom,
   createHotel,
   deleteHotel,
   // getAllHotels,
   getHotelById,
   updateHotelBasicInfo,
+  updatePolicies,
   // getHotelBySlug,
   // updateHotel,
 } from '../controllers/hotel.controller';
@@ -13,6 +16,11 @@ import {
   restrictTo,
   validateHotelOwnerShip,
 } from '../controllers/auth.controller';
+import {
+  resizeAndUploadHotelsImages,
+  uploadHotelsImages,
+} from '../controllers/images.controller';
+import { getHotelRoom } from '../controllers/room.controller';
 
 const router = express.Router();
 router
@@ -26,7 +34,14 @@ router
   // .patch(protect, restrictTo('OWNER'), updateHotel)
   .delete(protect, restrictTo('OWNER'), deleteHotel);
 
-// router.get('/slug/:slug', getHotelBySlug);
+router
+  .route('/:hotelId/images')
+  .post(uploadHotelsImages, resizeAndUploadHotelsImages, addHotelImages);
+
+router
+  .route('/:hotelId/rooms')
+  .get(getHotelRoom)
+  .post(validateHotelOwnerShip, addRoom);
 
 router.put(
   '/:hotelId/basic-info',
@@ -34,6 +49,13 @@ router.put(
   restrictTo('OWNER'),
   validateHotelOwnerShip,
   updateHotelBasicInfo
+);
+router.put(
+  '/:hotelId/policies',
+  protect,
+  restrictTo('OWNER'),
+  validateHotelOwnerShip,
+  updatePolicies
 );
 
 export default router;

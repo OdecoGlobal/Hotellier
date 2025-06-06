@@ -45,9 +45,13 @@ export const hotelBasicInfoSchema = z.object({
   state: z.string().min(3, 'State must be at least 3 characters'),
   country: z.string().min(3, 'Country must be at least 3 characters'),
   zipCode: z.string().min(1, 'Zipcode must be at least 1 characters'),
-  longitude: z.number(),
-  latitude: z.number(),
-  images: z.array(z.string()).optional(),
+  lng: z.number(),
+  lat: z.number(),
+  hotelType: z.enum(['HOTEL', 'MOTEL', 'GUESTHOUSE', 'INN', 'APARTMENT']),
+  roomUnitTotal: z.coerce
+    .number()
+    .min(1, 'There must be at least one room or unit'),
+  acceptedCurrency: z.enum(['NGN', 'USD', 'EUR', 'GBP']),
 });
 
 export const hotelPolicySchema = z.object({
@@ -95,7 +99,7 @@ export const addRoomSchema = z.object({
   size: z.number().optional(),
   maxOccupancy: z.number().min(1),
   bedConfigurations: z.string(),
-  images: z.array(z.string().url()).optional(),
+  // images: z.array(z.string().url()).optional(),
   totalRooms: z.number().min(1).optional().default(1),
   isAvailable: z.boolean().optional().default(true),
 
@@ -105,12 +109,7 @@ export const addRoomSchema = z.object({
 
 export const insertHotelSchema = z.object({
   name: z.string().min(4, 'Hotel name must be at least 4 characters'),
-  // slug: z.string().min(3, 'Slug must be at least 3 characters'),
   description: z.string().min(3, 'Description must be at least 3 characters'),
-  // ownerId: z
-  //   .string()
-  //   .uuid("User id must be valid")
-  //   // .min(1, "Owner Id is required"),
   state: z.string().min(3, 'State must be at least 3 characters'),
   lga: z.string().min(3, 'LGA must be at least 3 characters'),
   longitude: z.number(),
@@ -144,4 +143,33 @@ export const insertRoomSchema = z.object({
   category: z.string().min(3, 'Category must be at least 3 characters'),
   images: z.string().array(),
   roomNumber: z.number().min(0, ''),
+});
+
+export const insertCountrySchema = z.object({
+  name: z.string().min(1, 'Country name is required'),
+  iso2: z.string().min(1, 'iso2 is required'),
+  iso3: z.string().min(1, 'iso2 is required'),
+  phoneCode: z.string().optional(),
+  capital: z.string().optional(),
+  currency: z.string().optional(),
+  currency_name: z.string().optional(),
+  region: z.string().optional(),
+  nationality: z.string().optional(),
+});
+
+export const insertStateSchema = z.object({
+  name: z.string().min(1, 'State name is required'),
+  country_code: z.string().min(1, 'Country code is required'),
+  country_name: z.string().min(1, 'Country code is required'),
+  id: z.string().min(1, 'Id is required'),
+  state_code: z.string().optional(),
+});
+
+export const insertCitySchema = z.object({
+  name: z.string().min(1, 'City name is required'),
+  id: z.string().min(1, 'Id is required'),
+  state_code: z.string().optional(),
+  state_name: z.string().optional(),
+  state_id: z.string().min(1, 'State id is required'),
+  country_name: z.string().optional(),
 });

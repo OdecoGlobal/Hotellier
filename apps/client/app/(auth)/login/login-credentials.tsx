@@ -14,6 +14,7 @@ import { loginUser } from '@/lib/actions/auth.action';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '@hotellier/shared';
 import { Loader } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -42,6 +43,7 @@ const LoginForm = () => {
         description: res.message,
         variant: 'default',
       });
+      redirect('/');
     }
   };
 

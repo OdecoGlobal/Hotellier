@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateHotelOwnerShip = exports.restrictTo = exports.protect = exports.logout = exports.login = exports.signUpHotelOwners = exports.signUp = void 0;
+exports.verifiedToken = exports.validateHotelOwnerShip = exports.restrictTo = exports.protect = exports.logout = exports.login = exports.signUpHotelOwners = exports.signUp = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const shared_1 = require("@hotellier/shared");
 const prisma_1 = require("../db/prisma");
@@ -161,4 +161,36 @@ exports.validateHotelOwnerShip = (0, catchAsync_1.default)(async (req, res, next
         return next(new appError_1.default('Hotel not found or access denied', 404));
     req.hotel = hotel;
     next();
+});
+exports.verifiedToken = (0, catchAsync_1.default)(async (req, res, next) => {
+    let token;
+    if (req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+    else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
+    }
+    if (!token) {
+        return next(new appError_1.default('You are not logged in!, Please login in to access', 401));
+    }
+    const decoded = await verifyToken(token, process.env.JWT_SECRET);
+    const currentUser = await prisma_1.prisma.user.findUnique({
+        where: { id: decoded.id },
+    });
+    if (!currentUser)
+        return next(new appError_1.default('User no longer exists.', 401));
+    if (!decoded.iat) {
+        throw new Error('Token missing "iat" claim');
+    }
+    if ((0, utils_1.changedPasswordAfter)(currentUser, decoded.iat)) {
+        return next(new appError_1.default('User recently changed password! Please log in again ', 401));
+    }
+    res.status(200).json({
+        status: 'success',
+        data: {
+            token,
+            user: currentUser,
+        },
+    });
 });
