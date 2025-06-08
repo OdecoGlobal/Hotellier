@@ -1,5 +1,5 @@
-import IncompleteHotelComponent from '@/components/shared/owner/hotel/onboard/incomplete';
-import StartNewHotel from '@/components/shared/owner/hotel/onboard/start-new-hotel';
+import IncompleteHotelComponent from '@/components/shared/hotel/onboard/incomplete';
+import StartNewHotel from '@/components/shared/hotel/onboard/start-new-hotel';
 import { getIncompleteHotels } from '@/lib/actions/hotel.action';
 import { requireOwner } from '@/lib/auth-guard';
 import { steps } from '@/lib/constants';

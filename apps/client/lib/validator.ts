@@ -1,4 +1,4 @@
-import { baseHotelSchema, hotelBasicInfoSchema } from '@hotellier/shared';
+import { hotelBasicInfoSchema } from '@hotellier/shared';
 import { z } from 'zod';
 
 export const hotelBasicInfoStepOneSchema = hotelBasicInfoSchema.pick({
@@ -29,7 +29,7 @@ export const completionStepsSchema = z.object({
   step3_hotel_images: z.boolean(),
 });
 
-export const basicInfoSchema = baseHotelSchema.extend({
+export const basicInfoSchema = hotelBasicInfoSchema.extend({
   id: z.string().uuid(),
   hotelId: z.string().uuid(),
   slug: z.string(),

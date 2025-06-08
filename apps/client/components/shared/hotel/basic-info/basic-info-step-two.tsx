@@ -13,7 +13,7 @@ import {
   getCitiesByState,
   getStateByCountry,
 } from '@/lib/actions/location.action';
-import { CityData, CountryData, StateData } from '@/lib/types';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -37,6 +37,8 @@ import { hotelBasicInfoStepTwoSchema } from '@/lib/validator';
 import { Check } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { CountryData } from '@/types';
+import { StateData, CityData } from '@hotellier/shared';
 
 const extendedSchema = hotelBasicInfoStepTwoSchema.extend({
   countryId: z.string().optional(),

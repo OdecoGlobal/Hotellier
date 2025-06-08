@@ -90,3 +90,43 @@ export const getHotelCompletionProgress = (
   const completed = Object.values(completionSteps).filter(Boolean).length;
   return Math.round((completed / 6) * 100);
 };
+
+const padTime = (num: number) => num.toString().padStart(2, '0');
+
+const generateTimeSlots = (includeNextDay = false) => {
+  return Array.from({ length: 48 }, (_, i) => {
+    const totalMinutes = (6 * 60 + i * 30) % (24 * 60);
+    const hour24 = Math.floor(totalMinutes / 60);
+    const minute = totalMinutes % 60;
+    const period = hour24 < 12 ? 'AM' : 'PM';
+    const hour12 = hour24 % 12 || 12;
+    const minuteStr = minute === 0 ? '00' : '30';
+
+    let timeLabel = `${hour12}:${minuteStr} ${period}`;
+
+    // Handle special cases
+    if (hour24 === 12 && minute === 0) timeLabel = 'Noon';
+    if (hour24 === 0 && minute === 0) timeLabel = 'Midnight';
+
+    // Handle "next day" notation if enabled
+    if (
+      includeNextDay &&
+      hour24 >= 0 &&
+      hour24 < 6 &&
+      !(hour24 === 0 && minute === 0)
+    ) {
+      timeLabel += ' the next day';
+    }
+
+    return {
+      value: `${padTime(hour24)}:${minuteStr}`,
+      text: timeLabel,
+    };
+  });
+};
+
+// Create both versions
+const timesNextDay = generateTimeSlots(true);
+const selectTime = generateTimeSlots();
+
+export { selectTime , timesNextDay};

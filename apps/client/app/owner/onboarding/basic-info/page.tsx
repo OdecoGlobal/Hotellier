@@ -1,4 +1,4 @@
-import MainBasicInfoPage from '@/components/shared/owner/hotel/basic-info';
+import MainBasicInfoPage from '@/components/shared/hotel/basic-info';
 import { requireOwner } from '@/lib/auth-guard';
 
 const BasicInfoPage = async () => {

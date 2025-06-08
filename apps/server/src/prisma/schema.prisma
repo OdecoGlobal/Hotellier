@@ -89,28 +89,118 @@ model HotelBasicInfo {
   @@map("hotel_basic_info")
 }
 
+enum SelfCheckInType {
+  ACCESS_CODE
+  KEY_RETRIVAL_INSTRUCTION
+  LOCK_BOX
+  SMART_LOCK_CODE
+  EXPRESS_CHECKIN
+}
+
+enum LateCheckInFeeType {
+  FREE
+  SURCHARGE
+}
+
+enum SurchargeType {
+  AMOUNT
+  PERCENT
+  FEE_VARIES
+}
+
+enum PetSurchargeType {
+  PER_PET
+  PER_ACCOMODATION
+}
+
+enum PetFeeDuration {
+  PER_DAY
+  PER_NIGHT
+  PER_STAY
+  PER_WEEK
+}
+
+enum AllowedPetType {
+  ONLY_DOGS
+  ONLY_CATS
+  ONLY_DOGS_AND_CATS
+}
+
+enum PetRestrictionType {
+  ONLY_SMOKING_ROOMS
+  ONLY_SPECIFIC_AREAS
+  CANNOT_BE_LEFT_UNATTENDED
+  OTHERS
+}
+
+enum PetFriendlyFeatures {
+  FOOD_WATER_BOWL
+  LITTER_BOX
+  DOG_EXERCISE_ROOM
+  PET_SITTING_SERVICE
+  PET_GROOMING_SERVICE
+}
+
 model HotelPolicy {
   id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   hotelId String @unique @db.Uuid
   hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 
-  checkInTime      String
-  checkOutTime     String
-  lateCheckInFee   Float?
-  earlyCheckOutFee Float?
+  // Front desk
+  isFrontDesk           Boolean @default(false)
+  frontDeskScheduleDays Days[]  @default([])
+  frontDeskStartTime    String?
+  frontDeskEndTime      String?
 
-  cancellationPolicy CancellationPolicy
-  cancellationHours  Int
-  cancellationFee    Float?
+  // Self CheckIn
+  isSelfCheckIn   Boolean
+  selfCheckInType SelfCheckInType
 
-  childPolicy   String?
-  petPolicy     PetPolicy     @default(NOT_ALLOWED)
-  petFee        Float?
-  smokingPolicy SmokingPolicy @default(NO_SMOKING)
+  checkInStartTime         String
+  checkInEndTime           String
+  isLateCheckIn            Boolean?            @default(false)
+  lateCheckInType          LateCheckInFeeType?
+  surchargeType            SurchargeType?
+  surchargeAmount          Decimal?
+  surchargePercent         Decimal?
+  lateCheckInStartTime     String?
+  lateCheckInEndTime       String?
+  advancedNoticeCheckIn    Boolean?            @default(false)
+  advanceNoticeCheckInTime String?
+  checkOutTime             String
+
+  minCheckInAgeAllowed Decimal?
+
+  isPetAllowed         Boolean
+  isPetSurcharged      Boolean?          @default(false)
+  petSurchargeAmount   Decimal?
+  petSurchargeType     PetSurchargeType?
+  petSurchargeDuration PetFeeDuration?
+  isMaxFeePerStay      Boolean?          @default(false)
+  maxFeePerStayAmount  Decimal?
+  isPetFeeVaried       Boolean?          @default(false)
+
+  allowedPetType      AllowedPetType?
+  isPetRestricted     Boolean?              @default(false)
+  petRestrictionType  PetRestrictionType[]  @default([])
+  isMaxWeightPerPet   Boolean?              @default(false)
+  petMaxWeight        Decimal?
+  isPetDeposit        Boolean?
+  petDepositType      PetFeeDuration?
+  petDepositAmount    Decimal?
+  isPetCleaningFee    Boolean?              @default(false)
+  petCleaningFee      Decimal?
+  petFriendlyFeatures PetFriendlyFeatures[] @default([])
 
   paymentMethods    PaymentMethod[]
   isDepositRequired Boolean         @default(false)
-  depsoitAmount     Float?
+  depsoitAmount     Decimal?
+
+  cancellationPolicy       CancellationPolicy[]
+  cancellationFeeType      CancellationFeeType
+  isTaxIncludedInRoomRates Boolean
+
+  smokingPolicy SmokingPolicy @default(NO_SMOKING)
 
   additionalPolicy Json @default("{}")
 
@@ -298,6 +388,15 @@ enum HotelStatus {
   INACTIVE
 }
 
+enum Days {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
 enum Currency {
   NGN
   USD
@@ -330,9 +429,16 @@ enum HotelCategory {
 
 enum CancellationPolicy {
   FREE_CANCELLATION
-  MODERATE
-  STRICT
-  SUPER_STRICT
+  HOUR_24
+  HOUR_48
+  HOUR_72
+  NO_REFUND
+}
+
+enum CancellationFeeType {
+  FIRST_NIGHT_PLUS_TAX
+  AMOUNT_50
+  AMOUNT_100
 }
 
 enum PetPolicy {

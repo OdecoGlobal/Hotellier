@@ -1,6 +1,5 @@
 'use client';
 
-import { HotelBasicInfoData } from '@/lib/types';
 import {
   hotelBasicInfoStepOneSchema,
   hotelBasicInfoStepThreeSchema,
@@ -16,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createNewHotel } from '@/lib/actions/hotel.action';
 import { useRouter } from 'next/navigation';
 import HotelCreationSteps from '../creation-steps';
-import { AdminOwnerRole } from '@/types';
+import { AdminOwnerRole, HotelBasicInfoData } from '@/types';
 
 const MainBasicInfoPage = ({ role }: { role: AdminOwnerRole }) => {
   const [step, setStep] = useState(1);
