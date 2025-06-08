@@ -57,7 +57,7 @@ exports.hotelPolicySchema = zod_1.default.object({
     cancellationPolicy: zod_1.default.enum(types_1.CANCELLATION_POLICIES),
     cancellationFeeType: zod_1.default.enum(types_1.CANCELLATION_FEE_TYPE),
     smokingPolicy: zod_1.default.enum(types_1.SMOKING_POLICIES),
-    additionalPolicy: zod_1.default.any().optional(),
+    additionalPolicy: zod_1.default.array(zod_1.default.string()).optional(),
     isFrontDesk: zod_1.default.boolean(),
     frontDeskScheduleDays: zod_1.default.array(zod_1.default.enum(types_1.DAYS)).optional(),
     frontDeskStartTime: zod_1.default.string().optional(),

@@ -68,7 +68,6 @@ export const baseHotelSchema = z.object({
 export const hotelBasicInfoSchema = baseHotelSchema;
 
 export const hotelPolicySchema = z.object({
-  
   paymentMethod: z.array(z.enum(PAYMENT_METHODS)),
   isDepositRequired: z.boolean(),
   depositAmount: z.number().optional(),
@@ -76,7 +75,7 @@ export const hotelPolicySchema = z.object({
   cancellationPolicy: z.enum(CANCELLATION_POLICIES),
   cancellationFeeType: z.enum(CANCELLATION_FEE_TYPE),
   smokingPolicy: z.enum(SMOKING_POLICIES),
-  additionalPolicy: z.any().optional(),
+  additionalPolicy: z.array(z.string()).optional(),
 
   isFrontDesk: z.boolean(),
   frontDeskScheduleDays: z.array(z.enum(DAYS)).optional(),

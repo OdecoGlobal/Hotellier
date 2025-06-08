@@ -202,7 +202,7 @@ model HotelPolicy {
 
   smokingPolicy SmokingPolicy @default(NO_SMOKING)
 
-  additionalPolicy Json @default("{}")
+  additionalPolicy String[] @default([])
 
   isCompleted Boolean   @default(false)
   completedAt DateTime?

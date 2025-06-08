@@ -133,7 +133,7 @@ export declare const hotelPolicySchema: z.ZodObject<{
     cancellationPolicy: z.ZodEnum<["FREE_CANCELLATION", "HOUR_24", "HOUR_48", "HOUR_72", "NO_REFUND"]>;
     cancellationFeeType: z.ZodEnum<["FIRST_NIGHT_PLUS_TAX", " AMOUNT_50", "AMOUNT_100"]>;
     smokingPolicy: z.ZodEnum<["NO_SMOKING", "SMOKING_ALLOWED", "DESIGNATED_AREAS"]>;
-    additionalPolicy: z.ZodOptional<z.ZodAny>;
+    additionalPolicy: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     isFrontDesk: z.ZodBoolean;
     frontDeskScheduleDays: z.ZodOptional<z.ZodArray<z.ZodEnum<["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]>, "many">>;
     frontDeskStartTime: z.ZodOptional<z.ZodString>;
@@ -187,7 +187,7 @@ export declare const hotelPolicySchema: z.ZodObject<{
     checkOutTime: string;
     isPetAllowed: boolean;
     depositAmount?: number | undefined;
-    additionalPolicy?: any;
+    additionalPolicy?: string[] | undefined;
     frontDeskScheduleDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[] | undefined;
     frontDeskStartTime?: string | undefined;
     frontDeskEndTime?: string | undefined;
@@ -234,7 +234,7 @@ export declare const hotelPolicySchema: z.ZodObject<{
     checkOutTime: string;
     isPetAllowed: boolean;
     depositAmount?: number | undefined;
-    additionalPolicy?: any;
+    additionalPolicy?: string[] | undefined;
     frontDeskScheduleDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[] | undefined;
     frontDeskStartTime?: string | undefined;
     frontDeskEndTime?: string | undefined;
