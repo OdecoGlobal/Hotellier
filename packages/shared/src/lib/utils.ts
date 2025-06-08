@@ -1,45 +1,45 @@
-import slugify from "slugify";
-import { ZodError } from "zod";
+import slugify from 'slugify';
+import { ZodError } from 'zod';
 
 export function formatError(error: unknown) {
-  if (!error || typeof error !== "object") {
+  if (!error || typeof error !== 'object') {
     return String(error);
   }
 
   // Zod Validation Error
   if (error instanceof ZodError) {
-    const fieldsErrors = error.errors.map((e) => e.message);
-    return fieldsErrors.join(". ");
+    const fieldsErrors = error.errors.map(e => e.message);
+    return fieldsErrors.join('. ');
   }
   const err = error as any;
 
   // Prisma Request error
-  if (err.name === "PrismaClientKnownRequestError") {
-    if (err.code === "P2002") {
-      const field = err.meta?.target ? err.meta.target[0] : "Field";
+  if (err.name === 'PrismaClientKnownRequestError') {
+    if (err.code === 'P2002') {
+      const field = err.meta?.target ? err.meta.target[0] : 'Field';
       return `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
     }
   }
 
   // JWT ERRORS
-  if (err.name === "JsonWebTokenError") {
-    return "Invalid Token. Please log in again";
+  if (err.name === 'JsonWebTokenError') {
+    return 'Invalid Token. Please log in again';
   }
 
-  if (err.name === "TokenExpiredError") {
-    return "Your token has expired! Please log in again.";
+  if (err.name === 'TokenExpiredError') {
+    return 'Your token has expired! Please log in again.';
   }
 
   // VALIDATOR JS ERROR
-  if (err.name === "ValidationError" && err.errors) {
+  if (err.name === 'ValidationError' && err.errors) {
     const messages = Object.values(err.errors)
       .map((el: any) => el.message)
-      .join(". ");
+      .join('. ');
     return `Invalid input data. ${messages}`;
   }
 
   // DEFAULT ERROR.MESSAGE
-  if (typeof err.message === "string") {
+  if (typeof err.message === 'string') {
     return err.message;
   }
 
@@ -76,6 +76,6 @@ export function convertToPlainObject<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
 
-export function generateSlugFromName(name: string) {
-  return slugify(name, { lower: true, strict: true });
+export function generateSlug(text: string) {
+  return slugify(text, { lower: true, strict: true });
 }

@@ -14,6 +14,7 @@ import { signUpOwner } from '@/lib/actions/auth.action';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signUpFormSchema } from '@hotellier/shared';
 import { Loader } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -122,6 +123,15 @@ const SignUpOwnerForm = () => {
           )}
         </Button>
       </form>
+
+      <div className="space-y-2 my-2">
+        <p className="text-sm text-center">
+          Already have an account?{' '}
+          <Link href="/login" className="underline text-muted-foreground">
+            Login
+          </Link>
+        </p>
+      </div>
     </Form>
   );
 };

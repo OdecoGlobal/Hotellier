@@ -1,17 +1,9 @@
-import HotelCreationSteps from '@/components/shared/owner/hotel/creation-steps';
-import MainBasicInfoPage from './main';
+import MainBasicInfoPage from '@/components/shared/owner/hotel/basic-info';
+import { requireOwner } from '@/lib/auth-guard';
 
-const BasicInfoPage = () => {
-  return (
-    <section className="grid grid-cols-1 md:grid-cols-10 gap-4">
-      <div className="col-span-2">
-        <HotelCreationSteps current={0} />
-      </div>
-      <div className="col-span-8">
-        <MainBasicInfoPage />
-      </div>
-    </section>
-  );
+const BasicInfoPage = async () => {
+  const owner = await requireOwner();
+  return <MainBasicInfoPage role={owner.user.role as 'OWNER'} />;
 };
 
 export default BasicInfoPage;

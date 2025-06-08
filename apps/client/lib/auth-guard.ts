@@ -20,7 +20,7 @@ export async function requireAdmin(): Promise<Session> {
   if (session.user.role !== 'ADMIN') {
     redirect('/unauthorized');
   }
-  return session;
+  return session as Session & { user: { role: 'ADMIN' } };
 }
 
 export async function requireOwner(): Promise<Session> {
@@ -32,7 +32,7 @@ export async function requireOwner(): Promise<Session> {
   if (session.user.role !== 'OWNER') {
     redirect('/unauthorized');
   }
-  return session;
+  return session as Session & { user: { role: 'OWNER' } };
 }
 
 export async function hasRole(role: User['role']): Promise<boolean> {

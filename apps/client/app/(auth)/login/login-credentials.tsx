@@ -14,6 +14,7 @@ import { loginUser } from '@/lib/actions/auth.action';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '@hotellier/shared';
 import { Loader } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -92,6 +93,17 @@ const LoginForm = () => {
             'Login'
           )}
         </Button>
+        <p className="text-sm text-right">
+          <Link href="#" className="underline text-muted-foreground">
+            Forgot Password?
+          </Link>
+        </p>
+        <p className="text-sm text-center">
+          Don&apos;t have an account?{' '}
+          <Link href="/sign-up" className="underline text-muted-foreground">
+            Sign Up
+          </Link>
+        </p>
       </form>
     </Form>
   );

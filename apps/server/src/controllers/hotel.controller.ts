@@ -3,7 +3,7 @@ import catchAsync from '../utils/catchAsync';
 import { prisma } from '../db/prisma';
 import {
   addRoomSchema,
-  generateSlugFromName,
+  generateSlug,
   hotelBasicInfoSchema,
   hotelPolicySchema,
 } from '@hotellier/shared';
@@ -90,7 +90,7 @@ export const createHotel = catchAsync(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
 
   const basicInfoData = hotelBasicInfoSchema.parse(req.body);
-  const slug = generateSlugFromName(basicInfoData.name);
+  const slug = generateSlug(basicInfoData.name);
 
   const result = await prisma.$transaction(async tx => {
     const hotel = await tx.hotel.create({
@@ -137,7 +137,7 @@ export const updateHotelBasicInfo = catchAsync(
     const data = hotelBasicInfoSchema.partial().parse(req.body);
 
     if (data.name) {
-      const slug = generateSlugFromName(data.name);
+      const slug = generateSlug(data.name);
     }
     const { hotelId } = req.params;
 
@@ -244,24 +244,7 @@ export const addHotelImages = catchAsync(
 );
 export const deleteHotel = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const authReq = req as AuthenticatedRequest;
-
     const { hotelId } = req.params;
-
-    const hotelExist = await prisma.hotel.findUnique({
-      where: { id: hotelId },
-    });
-
-    if (!hotelExist) return next(new AppError('Hotel not found', 400));
-
-    if (
-      hotelExist.ownerId !== authReq.user.id &&
-      authReq.user.role !== 'ADMIN'
-    ) {
-      return next(
-        new AppError('You do not have permission to update this hotel', 403)
-      );
-    }
 
     await prisma.hotel.delete({
       where: { id: hotelId },
@@ -337,70 +320,48 @@ export const addRoomImages = catchAsync(
   }
 );
 
-/*
-export const updateHotel = catchAsync(
+const validStatuses = [
+  'DRAFT',
+  'IN_PROGRESS',
+  'PENDING_REVIEW',
+  'APPROVED',
+  'REJECTED',
+  'ACTIVE',
+  'INACTIVE',
+] as const;
+type HotelStatus = (typeof validStatuses)[number];
+
+export const getOwnerHotel = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { hotelId } = req.params;
-
     const authReq = req as AuthenticatedRequest;
-    const hotelExist = await prisma.hotel.findUnique({
-      where: { id: hotelId },
-    });
+    const { status } = req.query;
+    const ownerId = authReq.user.id;
 
-    if (!hotelExist) return next(new AppError('Hotel not found', 400));
+    const whereClause: any = {
+      ownerId: ownerId,
+    };
 
     if (
-      authReq.user.role !== 'ADMIN' &&
-      hotelExist.ownerId !== authReq.user.id
+      status &&
+      typeof status === 'string' &&
+      validStatuses.includes(status as HotelStatus)
     ) {
-      return next(
-        new AppError('You do not have permission to update this hotel', 403)
-      );
+      whereClause.status = status as HotelStatus;
     }
 
-    const hotel = updateHotelSchema.parse(req.body);
-
-    if (hotel.name) {
-      hotel.slug = generateSlugFromName(hotel.name);
-    }
-
-    const updatedHotel = await prisma.hotel.update({
-      where: { id: hotelId },
-      data: hotel,
+    const hotel = await prisma.hotel.findMany({
+      where: whereClause,
+      include: {
+        basicInfo: true,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
 
     res.status(200).json({
       status: 'success',
-      data: updatedHotel,
+      data: hotel,
     });
   }
 );
-
-export const getHotelBySlug = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { slug } = req.params;
-    const data = await prisma.hotel.findFirst({
-      where: { slug: slug },
-    });
-    res.status(200).json({
-      data,
-    });
-  }
-);
-*/
-
-/*
-export const getAllHotels = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const result = await getAllHotelsActions({
-      query: req.query.query as string,
-      limit: req.query.limit ? Number(req.query.limit) : 10,
-      page: req.query.page ? Number(req.query.page) : 1,
-      rating: req.query.rating as string,
-      sort: req.query.sort as string,
-    });
-    res.status(200).json({
-      data: result,
-    });
-  }
-);*/

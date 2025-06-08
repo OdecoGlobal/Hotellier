@@ -1,9 +1,13 @@
 import z from 'zod';
-
-export const signInFormSchema = z.object({
-  email: z.string().email('invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
+import {
+  CANCELLATION_POLICIES,
+  CURRENCIES,
+  HOTEL_TYPES,
+  PAYMENT_METHODS,
+  PET_POLICIES,
+  ROOM_TYPES,
+  SMOKING_POLICIES,
+} from '../types';
 
 export const userSchema = z.object({
   id: z.string().min(1, 'Id is required'),
@@ -34,19 +38,16 @@ export const signUpFormSchema = z
   });
 
 // HOTELS ZOD SCHEMA
-export const createHotelSchema = z.object({
-  ownerId: z.string().uuid(),
-});
 
-export const hotelBasicInfoSchema = z.object({
-  name: z.string().min(4, 'Hotel Name must be at least 4 characters'),
-  address: z.string().min(3, 'Address must at least be 3 characters'),
+export const baseHotelSchema = z.object({
+  name: z.string().min(4, 'Hotel name must be at least 4 characters'),
+  address: z.string().min(3, 'Address must be at least 3 characters'),
   city: z.string().min(3, 'City must be at least 3 characters'),
   state: z.string().min(3, 'State must be at least 3 characters'),
   country: z.string().min(3, 'Country must be at least 3 characters'),
-  zipCode: z.string().min(1, 'Zipcode must be at least 1 characters'),
-  lng: z.number(),
+  zipCode: z.string().min(1, 'Zipcode must be at least 1 character'),
   lat: z.number(),
+  lng: z.number(),
   hotelType: z.enum(['HOTEL', 'MOTEL', 'GUESTHOUSE', 'INN', 'APARTMENT']),
   roomUnitTotal: z.coerce
     .number()
@@ -54,48 +55,30 @@ export const hotelBasicInfoSchema = z.object({
   acceptedCurrency: z.enum(['NGN', 'USD', 'EUR', 'GBP']),
 });
 
+export const hotelBasicInfoSchema = baseHotelSchema;
+
 export const hotelPolicySchema = z.object({
   checkInTime: z.string(),
   checkOutTime: z.string(),
   lateCheckInFee: z.number().optional(),
   earlyCheckoutFee: z.number().optional(),
-  cancellationPolicy: z.enum([
-    'FREE_CANCELLATION',
-    'MODERATE',
-    'STRICT',
-    'SUPER_STRICT',
-  ]),
+  cancellationPolicy: z.enum(CANCELLATION_POLICIES),
   cancellationHours: z.number(),
   cancellationFee: z.number().optional(),
   childPolicy: z.string().optional(),
-  petPolicy: z.enum(['NOT_ALLOWED', 'ALLOWED_WITH_FEE', 'ALLOWED_FREE']),
+  petPolicy: z.enum(PET_POLICIES),
   petFee: z.number().optional(),
-  smokingPolicy: z.enum(['NO_SMOKING', 'SMOKING_ALLOWED', 'DESIGNATED_AREAS']),
-  paymentMethod: z.array(
-    z.enum([
-      'CREDIT_CARD',
-      'DEBIT_CARD',
-      'CASH',
-      'BANK_TRANSFER',
-      'DIGITAL_WALLET',
-    ])
-  ),
+  smokingPolicy: z.enum(SMOKING_POLICIES),
+  paymentMethod: z.array(z.enum(PAYMENT_METHODS)),
   isDepositRequired: z.boolean(),
   depositAmount: z.number().optional(),
   additionalPolicy: z.any().optional(),
 });
 
-export const addRoomSchema = z.object({
+export const baseRoomSchema = z.object({
   name: z.string().min(3, 'Room name must be at least 3 characters'),
   description: z.string().optional(),
-  roomType: z.enum([
-    'STANDARD',
-    'DELUXE',
-    'SUITE',
-    'FAMILY',
-    'EXECUTIVE',
-    'PRESIDENTIAL',
-  ]),
+  roomType: z.enum(ROOM_TYPES),
   size: z.number().optional(),
   maxOccupancy: z.number().min(1),
   bedConfigurations: z.string(),
@@ -107,22 +90,9 @@ export const addRoomSchema = z.object({
   currency: z.string().default('NGN'),
 });
 
-export const insertHotelSchema = z.object({
-  name: z.string().min(4, 'Hotel name must be at least 4 characters'),
-  description: z.string().min(3, 'Description must be at least 3 characters'),
-  state: z.string().min(3, 'State must be at least 3 characters'),
-  lga: z.string().min(3, 'LGA must be at least 3 characters'),
-  longitude: z.number(),
-  latitude: z.number(),
-  address: z.string().min(3, 'Address must be at least 3 characters'),
-  services: z.array(z.string()).min(1, 'Hotel must have at least one service'),
-  locationBrief: z
-    .string()
-    .min(3, 'Location Brief must be at least 3 characters'),
-  banner: z.string().nullable().optional(),
-});
+export const addRoomSchema = baseRoomSchema;
 
-export const updateHotelSchema = insertHotelSchema.partial().extend({
+export const updateHotelSchema = baseHotelSchema.partial().extend({
   slug: z.string().min(3, 'Slug must be at least 3 characters').optional(),
 });
 
@@ -138,12 +108,6 @@ export const updateHotelServiceTypeSchema =
   insertHotelServicesTypeSchema.extend({
     id: z.string().min(1, 'Id id required'),
   });
-export const insertRoomSchema = z.object({
-  name: z.string().min(3, 'Name must be at least 3 characters'),
-  category: z.string().min(3, 'Category must be at least 3 characters'),
-  images: z.string().array(),
-  roomNumber: z.number().min(0, ''),
-});
 
 export const insertCountrySchema = z.object({
   name: z.string().min(1, 'Country name is required'),

@@ -8,3 +8,25 @@ export const axiosInstance: AxiosInstance = axios.create({
 
   withCredentials: true,
 });
+
+axiosInstance.interceptors.request.use(
+  async config => {
+    if (typeof window === 'undefined') {
+      const { cookies } = await import('next/headers');
+
+      try {
+        const cookieStore = await cookies();
+        const jwtToken = cookieStore.get('jwt')?.value;
+        if (jwtToken) {
+          config.headers.Cookie = `jwt=${jwtToken}`;
+        }
+      } catch (error) {
+        console.log('Could not access cookies in server context', error);
+      }
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);

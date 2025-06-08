@@ -1,8 +1,7 @@
+import { steps } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import React from 'react';
-
-const steps = ['Basic Info', 'Policies', 'Rooms and Rates'];
 
 const HotelCreationSteps = ({ current = 0 }) => {
   return (
@@ -37,6 +36,32 @@ const HotelCreationSteps = ({ current = 0 }) => {
         })}
       </div>
       {/* MOBILE */}
+      <div className="flex  md:hidden justify-around px-3 items-center py-6  w-full  bg-sidebar border-b-2">
+        {steps.map((step, i) => {
+          const isCompleted = i < current;
+          const isCurrent = i === current;
+          const isLast = i === steps.length - 1;
+          return (
+            <React.Fragment key={step}>
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
+                  isCompleted
+                    ? 'bg-muted-foreground'
+                    : isCurrent
+                    ? 'bg-muted-foreground'
+                    : 'border'
+                )}
+              >
+                {isCompleted ? <Check /> : i + 1}
+              </div>
+              {!isLast && (
+                <hr className="flex-1 border-t border-muted-foreground mx-1" />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
     </aside>
   );
 };

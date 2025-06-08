@@ -46,3 +46,12 @@ export const currency = [
     text: 'British Pounds Sterling',
   },
 ];
+
+export const steps = [
+  'Basic Info',
+  'Policies',
+  'Photos',
+  'Rooms and Rates',
+  'Amenities',
+  'Review',
+];

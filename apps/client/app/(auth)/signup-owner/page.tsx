@@ -12,9 +12,11 @@ const SignUpOwnerPage = () => {
     <section className="w-full max-w-md mx-auto">
       <Card>
         <CardHeader className="space-y-4">
-          <CardTitle className="text-center">Create An Account</CardTitle>
+          <CardTitle className="text-center">
+            Create An Owner&apos;s Account
+          </CardTitle>
           <CardDescription className="text-center">
-            Enter your details below to create an account
+            Enter your details below to create an account to list your property
           </CardDescription>
         </CardHeader>
 

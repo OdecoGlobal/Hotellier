@@ -3,17 +3,19 @@ import csv from 'csvtojson';
 import path from 'path';
 import { prisma } from './db/prisma';
 import {
-  CountryData,
   insertCitySchema,
   insertCountrySchema,
   insertStateSchema,
 } from '@hotellier/shared';
 
+const allowedCountryCodes = new Set(['NG', 'ZA', 'AE', 'GB']);
+
 async function importCountries() {
   const filePath = path.join(__dirname, 'data/countries.csv');
   const data = await csv().fromFile(filePath);
-  const countries = insertCountrySchema.array().parse(data);
-  console.log(`Importing ${data.length} countries`);
+  const filtered = data.filter(c => allowedCountryCodes.has(c.iso2));
+  const countries = insertCountrySchema.array().parse(filtered);
+  console.log(`Importing ${filtered.length} countries`);
 
   for (const c of countries) {
     try {
@@ -52,8 +54,9 @@ async function importCountries() {
 async function importStates() {
   const filePath = path.join(__dirname, 'data/states.csv');
   const data = await csv().fromFile(filePath);
-  const states = insertStateSchema.array().parse(data);
-  console.log(`Importing ${data.length} states`);
+  const filtered = data.filter(s => allowedCountryCodes.has(s.country_code));
+  const states = insertStateSchema.array().parse(filtered);
+  console.log(`Importing ${filtered.length} states`);
 
   for (const s of states) {
     const country = await prisma.country.findUnique({
@@ -96,8 +99,9 @@ async function importStates() {
 async function importCities() {
   const filePath = path.join(__dirname, 'data/cities.csv');
   const data = await csv().fromFile(filePath);
-  const cities = insertCitySchema.array().parse(data);
-  console.log(`Importing ${data.length} cities`);
+  const filtered = data.filter(c => allowedCountryCodes.has(c.country_code));
+  const cities = insertCitySchema.array().parse(filtered);
+  console.log(`Importing ${filtered.length} cities`);
 
   for (const c of cities) {
     const state = await prisma.state.findUnique({
@@ -143,7 +147,7 @@ async function importCities() {
 
 async function main() {
   try {
-    // await importCountries();
+    await importCountries();
     await importStates();
     await importCities();
     console.log('Import done');

@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 import AppError from '../utils/appError';
 import catchAsync from '../utils/catchAsync';
 import { prisma } from '../db/prisma';
-import { generateSlugFromName } from '@hotellier/shared';
+import { generateSlug } from '@hotellier/shared';
 
 interface HotelUploadFiles {
   hotelImages?: Express.Multer.File[];
@@ -103,8 +103,8 @@ export const resizeAndUploadRoomImages = catchAsync(
 
     if (!hotel) return next(new AppError('Hotel not found', 400));
 
-    const hotelName = generateSlugFromName(hotel.name);
-    const roomName = generateSlugFromName(room.name);
+    const hotelName = generateSlug(hotel.name);
+    const roomName = generateSlug(room.name);
 
     const baseFolder = `hotels/${hotelName}/${roomName}`;
 
@@ -138,7 +138,7 @@ export const resizeAndUploadHotelsImages = catchAsync(
     });
     if (!hotel) return next(new AppError('Hotel not found', 400));
 
-    const hotelName = generateSlugFromName(hotel.name);
+    const hotelName = generateSlug(hotel.name);
 
     const baseFolder = `hotels/${hotelName}/${hotelId}`;
     const defaultTransformation = [

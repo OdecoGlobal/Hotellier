@@ -203,22 +203,30 @@ export const restrictTo = (...roles: Role[]) => {
   };
 };
 
-export const validateHotelOwnerShip = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+interface ValidateHotelOptions {
+  allowAdmin?: boolean;
+}
+export const validateHotelAccess = (
+  options: ValidateHotelOptions = { allowAdmin: true }
+) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authReq = req as AuthenticatedRequest;
     const { hotelId } = req.params;
-
-    const userId = authReq.user.id;
-    const hotel = await prisma.hotel.findFirst({
-      where: { id: hotelId, ownerId: userId },
+    const hotel = await prisma.hotel.findUnique({
+      where: { id: hotelId },
     });
 
-    if (!hotel)
-      return next(new AppError('Hotel not found or access denied', 404));
+    if (!hotel) return next(new AppError('Hotel not found', 404));
+
+    const user = authReq.user;
+    const isAllowed = options.allowAdmin
+      ? hotel.ownerId === user.id || user.role === 'ADMIN'
+      : hotel.ownerId === user.id;
+
+    if (!isAllowed) return next(new AppError('Access denied', 403));
     req.hotel = hotel;
     next();
-  }
-);
+  });
 
 export const verifiedToken = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {

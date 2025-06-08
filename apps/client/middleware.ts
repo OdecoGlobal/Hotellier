@@ -7,7 +7,7 @@ const protectedPaths = [
   /\/profile/,
   /\/user\/(.*)/,
   /\/admin/,
-  /\/owner/,
+  /\/owner\/(.*)/,
 ];
 
 const adminPaths = [/\/admin/];

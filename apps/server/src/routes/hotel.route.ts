@@ -6,6 +6,7 @@ import {
   deleteHotel,
   // getAllHotels,
   getHotelById,
+  getOwnerHotel,
   updateHotelBasicInfo,
   updatePolicies,
   // getHotelBySlug,
@@ -14,7 +15,7 @@ import {
 import {
   protect,
   restrictTo,
-  validateHotelOwnerShip,
+  validateHotelAccess,
 } from '../controllers/auth.controller';
 import {
   resizeAndUploadHotelsImages,
@@ -23,16 +24,24 @@ import {
 import { getHotelRoom } from '../controllers/room.controller';
 
 const router = express.Router();
-router
-  .route('/')
-  // .get(getAllHotels)
-  .post(protect, restrictTo('OWNER'), createHotel);
+router.route('/').post(protect, restrictTo('OWNER', 'ADMIN'), createHotel);
 
+router.get(
+  '/onboard/owner',
+  protect,
+  restrictTo('OWNER', 'ADMIN'),
+  getOwnerHotel
+);
 router
   .route('/:hotelId')
   .get(getHotelById)
   // .patch(protect, restrictTo('OWNER'), updateHotel)
-  .delete(protect, restrictTo('OWNER'), deleteHotel);
+  .delete(
+    protect,
+    restrictTo('OWNER', 'ADMIN'),
+    validateHotelAccess(),
+    deleteHotel
+  );
 
 router
   .route('/:hotelId/images')
@@ -41,20 +50,20 @@ router
 router
   .route('/:hotelId/rooms')
   .get(getHotelRoom)
-  .post(validateHotelOwnerShip, addRoom);
+  .post(validateHotelAccess(), addRoom);
 
 router.put(
   '/:hotelId/basic-info',
   protect,
   restrictTo('OWNER'),
-  validateHotelOwnerShip,
+  validateHotelAccess(),
   updateHotelBasicInfo
 );
 router.put(
   '/:hotelId/policies',
   protect,
   restrictTo('OWNER'),
-  validateHotelOwnerShip,
+  validateHotelAccess(),
   updatePolicies
 );
 

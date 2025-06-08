@@ -1,14 +1,4 @@
 import z from 'zod';
-export declare const signInFormSchema: z.ZodObject<{
-    email: z.ZodString;
-    password: z.ZodString;
-}, "strip", z.ZodTypeAny, {
-    email: string;
-    password: string;
-}, {
-    email: string;
-    password: string;
-}>;
 export declare const userSchema: z.ZodObject<{
     id: z.ZodString;
     userName: z.ZodString;
@@ -29,11 +19,11 @@ export declare const loginSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    email: string;
     password: string;
+    email: string;
 }, {
-    email: string;
     password: string;
+    email: string;
 }>;
 export declare const signUpFormSchema: z.ZodEffects<z.ZodObject<{
     userName: z.ZodString;
@@ -41,42 +31,35 @@ export declare const signUpFormSchema: z.ZodEffects<z.ZodObject<{
     password: z.ZodString;
     confirmPassword: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    email: string;
-    password: string;
     userName: string;
+    password: string;
+    email: string;
     confirmPassword: string;
 }, {
-    email: string;
-    password: string;
     userName: string;
+    password: string;
+    email: string;
     confirmPassword: string;
 }>, {
-    email: string;
-    password: string;
     userName: string;
+    password: string;
+    email: string;
     confirmPassword: string;
 }, {
-    email: string;
-    password: string;
     userName: string;
+    password: string;
+    email: string;
     confirmPassword: string;
 }>;
-export declare const createHotelSchema: z.ZodObject<{
-    ownerId: z.ZodString;
-}, "strip", z.ZodTypeAny, {
-    ownerId: string;
-}, {
-    ownerId: string;
-}>;
-export declare const hotelBasicInfoSchema: z.ZodObject<{
+export declare const baseHotelSchema: z.ZodObject<{
     name: z.ZodString;
     address: z.ZodString;
     city: z.ZodString;
     state: z.ZodString;
     country: z.ZodString;
     zipCode: z.ZodString;
-    lng: z.ZodNumber;
     lat: z.ZodNumber;
+    lng: z.ZodNumber;
     hotelType: z.ZodEnum<["HOTEL", "MOTEL", "GUESTHOUSE", "INN", "APARTMENT"]>;
     roomUnitTotal: z.ZodNumber;
     acceptedCurrency: z.ZodEnum<["NGN", "USD", "EUR", "GBP"]>;
@@ -87,8 +70,8 @@ export declare const hotelBasicInfoSchema: z.ZodObject<{
     state: string;
     country: string;
     zipCode: string;
-    lng: number;
     lat: number;
+    lng: number;
     hotelType: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT";
     roomUnitTotal: number;
     acceptedCurrency: "NGN" | "USD" | "EUR" | "GBP";
@@ -99,8 +82,45 @@ export declare const hotelBasicInfoSchema: z.ZodObject<{
     state: string;
     country: string;
     zipCode: string;
-    lng: number;
     lat: number;
+    lng: number;
+    hotelType: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT";
+    roomUnitTotal: number;
+    acceptedCurrency: "NGN" | "USD" | "EUR" | "GBP";
+}>;
+export declare const hotelBasicInfoSchema: z.ZodObject<{
+    name: z.ZodString;
+    address: z.ZodString;
+    city: z.ZodString;
+    state: z.ZodString;
+    country: z.ZodString;
+    zipCode: z.ZodString;
+    lat: z.ZodNumber;
+    lng: z.ZodNumber;
+    hotelType: z.ZodEnum<["HOTEL", "MOTEL", "GUESTHOUSE", "INN", "APARTMENT"]>;
+    roomUnitTotal: z.ZodNumber;
+    acceptedCurrency: z.ZodEnum<["NGN", "USD", "EUR", "GBP"]>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    zipCode: string;
+    lat: number;
+    lng: number;
+    hotelType: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT";
+    roomUnitTotal: number;
+    acceptedCurrency: "NGN" | "USD" | "EUR" | "GBP";
+}, {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    zipCode: string;
+    lat: number;
+    lng: number;
     hotelType: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT";
     roomUnitTotal: number;
     acceptedCurrency: "NGN" | "USD" | "EUR" | "GBP";
@@ -154,6 +174,40 @@ export declare const hotelPolicySchema: z.ZodObject<{
     depositAmount?: number | undefined;
     additionalPolicy?: any;
 }>;
+export declare const baseRoomSchema: z.ZodObject<{
+    name: z.ZodString;
+    description: z.ZodOptional<z.ZodString>;
+    roomType: z.ZodEnum<["STANDARD", "DELUXE", "SUITE", "FAMILY", "EXECUTIVE", "PRESIDENTIAL"]>;
+    size: z.ZodOptional<z.ZodNumber>;
+    maxOccupancy: z.ZodNumber;
+    bedConfigurations: z.ZodString;
+    totalRooms: z.ZodDefault<z.ZodOptional<z.ZodNumber>>;
+    isAvailable: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    basePrice: z.ZodNumber;
+    currency: z.ZodDefault<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    roomType: "STANDARD" | "DELUXE" | "SUITE" | "FAMILY" | "EXECUTIVE" | "PRESIDENTIAL";
+    maxOccupancy: number;
+    bedConfigurations: string;
+    totalRooms: number;
+    isAvailable: boolean;
+    basePrice: number;
+    currency: string;
+    description?: string | undefined;
+    size?: number | undefined;
+}, {
+    name: string;
+    roomType: "STANDARD" | "DELUXE" | "SUITE" | "FAMILY" | "EXECUTIVE" | "PRESIDENTIAL";
+    maxOccupancy: number;
+    bedConfigurations: string;
+    basePrice: number;
+    description?: string | undefined;
+    size?: number | undefined;
+    totalRooms?: number | undefined;
+    isAvailable?: boolean | undefined;
+    currency?: string | undefined;
+}>;
 export declare const addRoomSchema: z.ZodObject<{
     name: z.ZodString;
     description: z.ZodOptional<z.ZodString>;
@@ -188,76 +242,45 @@ export declare const addRoomSchema: z.ZodObject<{
     isAvailable?: boolean | undefined;
     currency?: string | undefined;
 }>;
-export declare const insertHotelSchema: z.ZodObject<{
-    name: z.ZodString;
-    description: z.ZodString;
-    state: z.ZodString;
-    lga: z.ZodString;
-    longitude: z.ZodNumber;
-    latitude: z.ZodNumber;
-    address: z.ZodString;
-    services: z.ZodArray<z.ZodString, "many">;
-    locationBrief: z.ZodString;
-    banner: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-}, "strip", z.ZodTypeAny, {
-    name: string;
-    address: string;
-    state: string;
-    description: string;
-    lga: string;
-    longitude: number;
-    latitude: number;
-    services: string[];
-    locationBrief: string;
-    banner?: string | null | undefined;
-}, {
-    name: string;
-    address: string;
-    state: string;
-    description: string;
-    lga: string;
-    longitude: number;
-    latitude: number;
-    services: string[];
-    locationBrief: string;
-    banner?: string | null | undefined;
-}>;
 export declare const updateHotelSchema: z.ZodObject<{
     name: z.ZodOptional<z.ZodString>;
-    description: z.ZodOptional<z.ZodString>;
-    state: z.ZodOptional<z.ZodString>;
-    lga: z.ZodOptional<z.ZodString>;
-    longitude: z.ZodOptional<z.ZodNumber>;
-    latitude: z.ZodOptional<z.ZodNumber>;
     address: z.ZodOptional<z.ZodString>;
-    services: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    locationBrief: z.ZodOptional<z.ZodString>;
-    banner: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>;
+    city: z.ZodOptional<z.ZodString>;
+    state: z.ZodOptional<z.ZodString>;
+    country: z.ZodOptional<z.ZodString>;
+    zipCode: z.ZodOptional<z.ZodString>;
+    lat: z.ZodOptional<z.ZodNumber>;
+    lng: z.ZodOptional<z.ZodNumber>;
+    hotelType: z.ZodOptional<z.ZodEnum<["HOTEL", "MOTEL", "GUESTHOUSE", "INN", "APARTMENT"]>>;
+    roomUnitTotal: z.ZodOptional<z.ZodNumber>;
+    acceptedCurrency: z.ZodOptional<z.ZodEnum<["NGN", "USD", "EUR", "GBP"]>>;
 } & {
     slug: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     name?: string | undefined;
     address?: string | undefined;
+    city?: string | undefined;
     state?: string | undefined;
-    description?: string | undefined;
-    lga?: string | undefined;
-    longitude?: number | undefined;
-    latitude?: number | undefined;
-    services?: string[] | undefined;
-    locationBrief?: string | undefined;
-    banner?: string | null | undefined;
+    country?: string | undefined;
+    zipCode?: string | undefined;
+    lat?: number | undefined;
+    lng?: number | undefined;
+    hotelType?: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT" | undefined;
+    roomUnitTotal?: number | undefined;
+    acceptedCurrency?: "NGN" | "USD" | "EUR" | "GBP" | undefined;
     slug?: string | undefined;
 }, {
     name?: string | undefined;
     address?: string | undefined;
+    city?: string | undefined;
     state?: string | undefined;
-    description?: string | undefined;
-    lga?: string | undefined;
-    longitude?: number | undefined;
-    latitude?: number | undefined;
-    services?: string[] | undefined;
-    locationBrief?: string | undefined;
-    banner?: string | null | undefined;
+    country?: string | undefined;
+    zipCode?: string | undefined;
+    lat?: number | undefined;
+    lng?: number | undefined;
+    hotelType?: "HOTEL" | "MOTEL" | "GUESTHOUSE" | "INN" | "APARTMENT" | undefined;
+    roomUnitTotal?: number | undefined;
+    acceptedCurrency?: "NGN" | "USD" | "EUR" | "GBP" | undefined;
     slug?: string | undefined;
 }>;
 export declare const insertHotelServicesTypeSchema: z.ZodObject<{
@@ -289,22 +312,6 @@ export declare const updateHotelServiceTypeSchema: z.ZodObject<{
     name: string;
     questions: string[];
     icon?: string | undefined;
-}>;
-export declare const insertRoomSchema: z.ZodObject<{
-    name: z.ZodString;
-    category: z.ZodString;
-    images: z.ZodArray<z.ZodString, "many">;
-    roomNumber: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
-    name: string;
-    category: string;
-    images: string[];
-    roomNumber: number;
-}, {
-    name: string;
-    category: string;
-    images: string[];
-    roomNumber: number;
 }>;
 export declare const insertCountrySchema: z.ZodObject<{
     name: z.ZodString;

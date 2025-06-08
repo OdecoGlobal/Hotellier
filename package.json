@@ -16,7 +16,8 @@
     "dev:shared": "npm run dev -w  packages/shared",
     "generate": "npm run prisma:generate -w apps/server",
     "migrate": "npm run prisma:migrate -w apps/server",
-    "reset": "npm run prisma:reset -w apps/server"
+    "reset": "npm run prisma:reset -w apps/server",
+    "studio": "npm run prisma:studio -w apps/server"
   },
   "license": "ISC",
   "type": "commonjs",
